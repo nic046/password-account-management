@@ -3,12 +3,15 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  JoinColumn,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { SecurityBox } from "./security_box";
 import { Status } from "../../../config/regular-exp";
 import { encriptAdapter } from "../../../config/bcrypt.adapter";
+import { Pin } from "./pin";
 
 @Entity()
 export class User extends BaseEntity {
@@ -52,8 +55,17 @@ export class User extends BaseEntity {
   })
   status: string;
 
+  @Column("varchar", {
+    nullable: false,
+  })
+  pinId: string;
+
   @OneToMany(() => SecurityBox, (securityBox) => securityBox.user)
   security_boxes: SecurityBox[];
+
+  @OneToOne(() => Pin, (pin) => pin.user)
+  @JoinColumn({ name: "Pin" })
+  pin: Pin;
 
   @BeforeInsert()
   encryptedPassword() {

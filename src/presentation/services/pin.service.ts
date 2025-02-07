@@ -28,7 +28,7 @@ export class PinService {
     }
   }
 
-  async createPin(pinData: PinDTO){
+  async createPin(pinData: PinDTO, id: string){
     const pin = new Pin()
 
     pin.code = pinData.code
@@ -37,7 +37,7 @@ export class PinService {
         return await pin.save()
     } catch (error) {
         console.log(error);
-      throw CustomError.internalServer("Error creating Credential Storage");
+      throw CustomError.internalServer("Error creating Pin");
     }
   }
 

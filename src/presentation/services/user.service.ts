@@ -2,13 +2,24 @@ import { encriptAdapter } from "../../config/bcrypt.adapter";
 import { decryptData } from "../../config/crypto.adapter";
 import { JwtAdapter } from "../../config/jwt.adapter";
 import { Status } from "../../config/regular-exp";
-import { User } from "../../data";
-import { CustomError, LoginUserDTO, RegisterUserDTO } from "../../domain";
+import { Pin, User } from "../../data";
+import {
+  CustomError,
+  LoginUserDTO,
+  PinDTO,
+  RegisterUserDTO,
+} from "../../domain";
+import { PinService } from "./pin.service";
 
 export class UserService {
-  async getUsers() {
+  constructor(public readonly pinService: PinService) {}
+
+  async getUsers(user: User) {
     try {
       return await User.find({
+        where: {
+          id: user.id,
+        },
         relations: [
           "security_boxes",
           "security_boxes.credentialsStorage",
@@ -97,6 +108,13 @@ export class UserService {
     user.cellphone = userData.cellphone;
     user.password = userData.password;
 
+    const pinData: PinDTO = { code: userData.code };
+
+    const pin = await this.pinService.createPin(pinData, user.id);
+    user.pin = pin;
+
+    user.pinId = pin.id;
+
     try {
       const dbUser = await user.save();
 
@@ -106,6 +124,10 @@ export class UserService {
         email: dbUser.email,
         cellphone: dbUser.cellphone,
         status: dbUser.status,
+        pin: {
+          id: pin.id,
+          code: decryptData(pin.code),
+        },
       };
     } catch (error: any) {
       if (error.code === "23505") {

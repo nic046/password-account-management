@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { CredentialStorageService } from "../services/credential_storage.service";
-import { CreateCredentialStorageDTO, CustomError } from "../../domain";
-import { PinService } from "../services/pin.service";
+import { CreateCredentialStorageDTO, CustomError, UpdateCredentialStorageDTO } from "../../domain";
 
 export class CredentialStorageController {
   constructor(
@@ -24,8 +23,11 @@ export class CredentialStorageController {
 
     if (error) return res.status(422).json({ message: error });
 
+    const id = req.body.sessionBody.id
+    console.log("id: ", id);
+
     this.credentialService
-      .createCredentialStorage(createCredentialDTO!)
+      .createCredentialStorage(createCredentialDTO!, id)
       .then((data) => {
         return res.status(201).json(data);
       })
@@ -54,14 +56,14 @@ export class CredentialStorageController {
   editCredential = async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const [error, createCredentialDTO] = CreateCredentialStorageDTO.create(
+    const [error, updateCredentialDTO] = UpdateCredentialStorageDTO.update(
       req.body
     );
 
     if (error) return res.status(422).json({ message: error });
 
     this.credentialService
-      .updateCredentialStorage(id, createCredentialDTO!)
+      .updateCredentialStorage(id, updateCredentialDTO!)
       .then((data: any) => {
         return res.status(200).json(data);
       })

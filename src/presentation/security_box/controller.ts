@@ -27,7 +27,7 @@ export class SecurityBoxController {
           .catch((error: any) => this.handleError(error, res));
       };
     
-      getAllSecurityBox = async (req: Request, res: Response) => {
+      getAllSecurityBox = async (req: Request, res: Response) => {  //TODO: VALIDATE THE USE OF PIN TO GET DE SECURITY BOX
         this.securityService
           .showSecurity()
           .then((data) => {

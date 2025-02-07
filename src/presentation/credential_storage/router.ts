@@ -9,10 +9,10 @@ export class CredentialRouter {
   static routes(): Router {
     const router = Router();
 
-    const userService = new UserService()
-    const securitySevice = new SecurityService(userService)
     const pinService = new PinService()
-    const credentialService = new CredentialStorageService(securitySevice, pinService)
+    const userService = new UserService(pinService)
+    const securitySevice = new SecurityService(userService)
+    const credentialService = new CredentialStorageService(securitySevice, pinService, userService)
     const credentialController = new CredentialStorageController(credentialService)
 
     router.get("/:id", credentialController.getOneCredential);

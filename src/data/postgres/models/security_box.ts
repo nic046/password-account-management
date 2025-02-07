@@ -21,7 +21,7 @@ export class SecurityBox extends BaseEntity {
 
   @Column("varchar", {
     length: 60,
-    default: `<ion-icon name="person-circle-outline"></ion-icon>`
+    default: `person-circle-outline`
   })
   icon: string;
 

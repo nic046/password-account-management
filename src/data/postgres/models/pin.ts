@@ -1,5 +1,7 @@
-import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, BeforeInsert, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { CredentialStorage } from "./credential_storage";
+import { encryptData } from "../../../config/crypto.adapter";
+import { User } from "./user";
 
 @Entity()
 export class Pin extends BaseEntity {
@@ -7,11 +9,20 @@ export class Pin extends BaseEntity {
   id: string;
 
   @Column("varchar", {
-    length: 6,
+    length: 75,
     nullable: false,
   })
   code: string;
 
   @OneToMany(() => CredentialStorage, credentialStorage => credentialStorage.pin)
   credentialsStorage: CredentialStorage[]
+
+  @OneToOne(() => User, user => user.pin)
+  @JoinColumn()
+  user: User
+
+  @BeforeInsert()
+    encryptedPassword() {
+      this.code = encryptData(this.code)
+    }
 }

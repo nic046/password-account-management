@@ -1,13 +1,9 @@
 import { z } from "zod";
-import { regularExp } from "../../../config/regular-exp";
 
 const registerUserSchema = z.object({
   name: z
     .string({ required_error: "Name is required" })
     .min(3, { message: "Name must have at least 3 characters" }),
-  icon: z
-  .string({ required_error: "icon is required" })
-  .regex(regularExp.ionicon, { message: "Invalid Ionicon format" }),
   userId: z.string({ message: "UUID is required" }).uuid({
     message: "Invalid UUID format",
   }),

@@ -3,6 +3,7 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -63,6 +64,7 @@ export class CredentialStorage extends BaseEntity {
   securityBox: SecurityBox;
 
   @ManyToOne(() => Pin, (pin) => pin.credentialsStorage)
+  @JoinColumn({ name: "pinId" })
   pin: Pin;
 
   @BeforeInsert()

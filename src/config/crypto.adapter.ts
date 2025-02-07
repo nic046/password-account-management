@@ -13,3 +13,4 @@ export const decryptData = (encryptedData: string) => {
     const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
     return bytes.toString(CryptoJS.enc.Utf8);
 };
+

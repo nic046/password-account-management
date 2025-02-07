@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { regularExp } from "../../../config/regular-exp";
-import { publicDecrypt } from "crypto";
 
-const registerUserSchema = z.object({
+const registerCredentialSchema = z.object({
   account: z
     .string({ required_error: "Account is required" })
     .min(3, { message: "Account must have at least 3 characters" }),
@@ -21,27 +20,23 @@ const registerUserSchema = z.object({
   code_2: z
     .string({ required_error: "Account is required" })
     .min(3, { message: "Account must have at least 3 characters" }),
-  securityId: z.string({ message: "UUID is required" }).uuid({
-    message: "Invalid UUID format",
-  }),
 });
 
-export class CreateCredentialStorageDTO {
+export class UpdateCredentialStorageDTO {
   constructor(
     public readonly account: string,
     public readonly password: string,
     public readonly description: string,
     public readonly code_1: string,
     public readonly code_2: string,
-    public readonly securityId: string,
   ) {}
 
-  static create(object: {
+  static update(object: {
     [key: string]: any;
-  }): [string?, CreateCredentialStorageDTO?] {
-    const { account, password, description, code_1, code_2, securityId } = object;
+  }): [string?, UpdateCredentialStorageDTO?] {
+    const { account, password, description, code_1, code_2 } = object;
 
-    const result = registerUserSchema.safeParse(object);
+    const result = registerCredentialSchema.safeParse(object);
 
     if (!result.success) {
       const errorMessages = result.error.issues
@@ -52,13 +47,12 @@ export class CreateCredentialStorageDTO {
 
     return [
       undefined,
-      new CreateCredentialStorageDTO(
+      new UpdateCredentialStorageDTO(
         account,
         password,
         description,
         code_1,
         code_2,
-        securityId,
       ),
     ];
   }

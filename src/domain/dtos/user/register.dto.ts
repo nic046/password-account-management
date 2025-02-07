@@ -21,6 +21,9 @@ const registerUserSchema = z.object({
     .regex(regularExp.password, {
       message: "Password must contain at least one special character",
     }),
+  code: z
+    .string({ required_error: "Code is required" })
+    .min(3, { message: "Code must have at least 3 characters" }),
 });
 
 export class RegisterUserDTO {
@@ -29,7 +32,8 @@ export class RegisterUserDTO {
     public readonly surname: string,
     public readonly email: string,
     public readonly cellphone: string,
-    public readonly password: string
+    public readonly password: string,
+    public readonly code: string
   ) {}
 
   static create(object: { [key: string]: any }): [string?, RegisterUserDTO?] {
@@ -42,10 +46,18 @@ export class RegisterUserDTO {
       return [errorMessages];
     }
 
-    const { name, surname, email, cellphone, password } = result.data;
+    const { name, surname, email, cellphone, password, code } =
+      result.data;
     return [
       undefined,
-      new RegisterUserDTO(name, surname, email, cellphone, password),
+      new RegisterUserDTO(
+        name,
+        surname,
+        email,
+        cellphone,
+        password,
+        code
+      ),
     ];
   }
 }

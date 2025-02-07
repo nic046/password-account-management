@@ -28,6 +28,7 @@ export class AuthMiddleware {
       if (!user) return res.status(401).json({ message: "Invalid user" });
 
       req.body.sessionBody = user;
+
       next();
     } catch (error) {
       console.log(error);

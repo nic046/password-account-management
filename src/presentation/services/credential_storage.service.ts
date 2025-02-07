@@ -1,15 +1,17 @@
-import { any } from "zod";
 import { decryptData } from "../../config/crypto.adapter";
 import { Status } from "../../config/regular-exp";
-import { CredentialStorage } from "../../data";
+import { CredentialStorage, Pin, User } from "../../data";
 import { CreateCredentialStorageDTO, CustomError } from "../../domain";
 import { SecurityService } from "./security_controller.service";
 import { PinService } from "./pin.service";
+import { UserService } from "./user.service";
+import { UpdateCredentialStorageDTO } from "../../domain/dtos/credential_storage/update.dto";
 
 export class CredentialStorageService {
   constructor(
     public readonly securitySevice: SecurityService,
-    public readonly pinService: PinService
+    public readonly pinService: PinService,
+    public readonly userService: UserService,
   ) {}
 
   async getCredentialStorage() {
@@ -98,14 +100,12 @@ export class CredentialStorageService {
     }
   }
 
-  async createCredentialStorage(credentialData: CreateCredentialStorageDTO) {
+  async createCredentialStorage(credentialData: CreateCredentialStorageDTO, id: string) {
     const credential = new CredentialStorage();
 
     const securityBox = await this.securitySevice.getOneSecurity(
       credentialData.securityId
     );
-
-    const pin = await this.pinService.getOnePin(credentialData.pinId);
 
     credential.account = credentialData.account;
     credential.password = credentialData.password;
@@ -113,10 +113,15 @@ export class CredentialStorageService {
     credential.code_1 = credentialData.code_1;
     credential.code_2 = credentialData.code_2;
     credential.securityId = credentialData.securityId;
-    credential.pinId = credentialData.pinId;
 
     credential.securityBox = securityBox;
-    credential.pin = pin;
+
+    const pinId = (await this.userService.getOneUser(id)).pinId
+
+    credential.pinId = pinId
+    const pin = await this.pinService.getOnePin(pinId)
+
+    credential.pin = pin
 
     try {
       return await credential.save();
@@ -128,23 +133,15 @@ export class CredentialStorageService {
 
   async updateCredentialStorage(
     id: string,
-    credentialData: CreateCredentialStorageDTO
+    credentialData: UpdateCredentialStorageDTO
   ) {
     const credential = await this.getOneCredentialStorage(id);
-
-    const securityBox = await this.securitySevice.getOneSecurity(
-      credential.securityId
-    );
 
     credential.account = credentialData.account;
     credential.password = credentialData.password;
     credential.description = credentialData.description;
     credential.code_1 = credentialData.code_1;
     credential.code_2 = credentialData.code_2;
-    credential.securityId = credentialData.securityId;
-    credential.pinId = credentialData.pinId;
-
-    credential.securityBox = securityBox;
 
     try {
       return await credential.save();

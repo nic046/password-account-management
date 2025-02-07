@@ -1,5 +1,5 @@
 import { UserService } from "../services/user.service";
-import { RegisterUserDTO, CustomError, LoginUserDTO } from "../../domain";
+import { RegisterUserDTO, CustomError, LoginUserDTO, PinDTO } from "../../domain";
 import { UpdateUserDTO } from "../../domain/dtos/user/update.dto";
 import { Request, Response } from "express";
 
@@ -15,9 +15,9 @@ export class UserController {
   };
 
   register = async (req: Request, res: Response) => {
-    const [error, registerUserDTO] = RegisterUserDTO.create(req.body);
+    const [errorUser, registerUserDTO] = RegisterUserDTO.create(req.body);
 
-    if (error) return res.status(422).json({ message: error });
+    if (errorUser) return res.status(422).json({ message: errorUser });
 
     this.userService
       .register(registerUserDTO!)
@@ -42,8 +42,9 @@ export class UserController {
   };
 
   getAllUser = async (req: Request, res: Response) => {
+    const user = req.body.sessionBody
     this.userService
-      .getUsers()
+      .getUsers(user)
       .then((data) => {
         return res.status(201).json(data);
       })

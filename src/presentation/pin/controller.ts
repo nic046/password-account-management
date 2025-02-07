@@ -17,10 +17,12 @@ export class PinController {
   createPin = async (req: Request, res: Response) => {
     const [error, pinDTO] = PinDTO.create(req.body);
 
+    const userId = req.body.sessionBody.id
+
     if (error) return res.status(422).json({ message: error });
 
     this.pinService
-      .createPin(pinDTO!)
+      .createPin(pinDTO!, userId)
       .then((data) => {
         return res.status(201).json(data);
       })
