@@ -28,17 +28,41 @@ export class SecurityBoxController {
   };
 
   getAllSecurityBox = async (req: Request, res: Response) => {
+    const validOrderBy = ["name", "createdAt", "credentialCount"];
     const orderBy =
       (req.query.orderBy as "name" | "createdAt" | "credentialCount") || "name";
 
+    if (orderBy && !validOrderBy.includes(orderBy)) {
+      return res.status(400).json({
+        message: `Invalid orderBy value`,
+      });
+    }
+
+    const validOrderDirection = ["ASC", "DESC"];
     const orderDirection =
       (req.query.orderDirection as "ASC" | "DESC") || "ASC";
+
+    if (orderDirection && !validOrderDirection.includes(orderDirection)) {
+      return res.status(400).json({
+        message: `Invalid orderDirection value`,
+      });
+    }
 
     const favorite =
       req.query.favorite !== undefined ? req.query.favorite === "true" : null;
 
-      const page = Number(req.query.page || 1);
-      const limit = Number(req.query.limit || 10);
+    if (
+      req.query.favorite !== undefined &&
+      req.query.favorite !== "true" &&
+      req.query.favorite !== "false"
+    ) {
+      return res.status(400).json({
+        message: "Invalid favorite value ",
+      });
+    }
+
+    const page = Number(req.query.page || 1);
+    const limit = Number(req.query.limit || 10);
 
     this.securityService
       .showSecurity(orderBy, orderDirection, favorite, page, limit)
