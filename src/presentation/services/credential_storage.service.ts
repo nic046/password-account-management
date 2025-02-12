@@ -14,7 +14,7 @@ export class CredentialStorageService {
     public readonly userService: UserService,
   ) {}
 
-  async getCredentialStorage() {
+  async getCredentialStorage() {   
     try {
       const credentials = await CredentialStorage.find({
         relations: ["securityBox", "pin", "securityBox.user"],

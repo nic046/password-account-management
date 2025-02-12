@@ -9,7 +9,7 @@ export class AppRoutes {
   static get routes(): Router {
     const router = Router();
 
-    router.use("/api/users", UserRouter.routes());   //TODO: PREGUNTAR PORQUE NECESITO LOS PARENTESIS
+    router.use("/api/users", UserRouter.routes());  
 
     router.use(AuthMiddleware.protect);
     router.use("/api/security", SecurityRouter.routes());

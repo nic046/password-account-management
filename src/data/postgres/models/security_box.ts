@@ -36,6 +36,11 @@ export class SecurityBox extends BaseEntity {
   })
   userId: string;
 
+  @Column("timestamp", {
+    default: () => "CURRENT_TIMESTAMP"
+  })
+  createdAt: Date
+
   @ManyToOne(() => User, (user) => user.security_boxes)
   @JoinColumn({ name: "UserId" })
   user: User

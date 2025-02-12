@@ -3,71 +3,82 @@ import { CreateSecurityBoxDTO, CustomError } from "../../domain";
 import { SecurityService } from "../services/security_controller.service";
 
 export class SecurityBoxController {
-    constructor(private readonly securityService: SecurityService){}
+  constructor(private readonly securityService: SecurityService) {}
 
-    private handleError = (error: unknown, res: Response) => {
-        if (error instanceof CustomError) {
-          return res.status(error.statusCode).json({ message: error.message });
-        }
-    
-        console.log(error);
-        return res.status(500).json({ message: "Something went very wrong" });
-      };
+  private handleError = (error: unknown, res: Response) => {
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
 
-      createSecurityBox = async (req: Request, res: Response) => {
-        const [error, createSecurityDTO] = CreateSecurityBoxDTO.create(req.body);
-    
-        if (error) return res.status(422).json({ message: error });
-    
-        this.securityService
-          .createSecurity(createSecurityDTO!)
-          .then((data) => {
-            return res.status(201).json(data);
-          })
-          .catch((error: any) => this.handleError(error, res));
-      };
-    
-      getAllSecurityBox = async (req: Request, res: Response) => {  //TODO: VALIDATE THE USE OF PIN TO GET DE SECURITY BOX
-        this.securityService
-          .showSecurity()
-          .then((data) => {
-            return res.status(201).json(data);
-          })
-          .catch((error: any) => this.handleError(error, res));
-      };
-    
-      getOneSecurity = async (req: Request, res: Response) => {
-        const { id } = req.params;
-        this.securityService
-          .getOneSecurity(id)
-          .then((data: any) => {
-            res.status(200).json(data);
-          })
-          .catch((error: any) => this.handleError(error, res));
-      };
-    
-      editSecurity = async (req: Request, res: Response) => {
-        const { id } = req.params;
+    console.log(error);
+    return res.status(500).json({ message: "Something went very wrong" });
+  };
 
-        console.log(id);
-    
-        this.securityService
-          .updateSecurity(id, req.body)
-          .then((data: any) => {
-            return res.status(200).json(data);
-          })
-          .catch((error: any) => this.handleError(error, res));
-      };
-    
-      deleteSecurity = async (req: Request, res: Response) => {
-        const { id } = req.params;
-    
-        this.securityService
-          .deleteSecurity(id)
-          .then((data: any) => {
-            return res.status(204).json(data);
-          })
-          .catch((error: any) => this.handleError(error, res));
-      };
+  createSecurityBox = async (req: Request, res: Response) => {
+    const [error, createSecurityDTO] = CreateSecurityBoxDTO.create(req.body);
 
+    if (error) return res.status(422).json({ message: error });
+
+    this.securityService
+      .createSecurity(createSecurityDTO!)
+      .then((data) => {
+        return res.status(201).json(data);
+      })
+      .catch((error: any) => this.handleError(error, res));
+  };
+
+  getAllSecurityBox = async (req: Request, res: Response) => {
+    const orderBy =
+      (req.query.orderBy as "name" | "createdAt" | "credentialCount") || "name";
+
+    const orderDirection =
+      (req.query.orderDirection as "ASC" | "DESC") || "ASC";
+
+    const favorite =
+      req.query.favorite !== undefined ? req.query.favorite === "true" : null;
+
+      const page = Number(req.query.page || 1);
+      const limit = Number(req.query.limit || 10);
+
+    this.securityService
+      .showSecurity(orderBy, orderDirection, favorite, page, limit)
+      .then((data) => {
+        return res.status(201).json(data);
+      })
+      .catch((error: any) => this.handleError(error, res));
+  };
+
+  getOneSecurity = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    this.securityService
+      .getOneSecurity(id)
+      .then((data: any) => {
+        res.status(200).json(data);
+      })
+      .catch((error: any) => this.handleError(error, res));
+  };
+
+  editSecurity = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    console.log(id);
+
+    this.securityService
+      .updateSecurity(id, req.body)
+      .then((data: any) => {
+        return res.status(200).json(data);
+      })
+      .catch((error: any) => this.handleError(error, res));
+  };
+
+  deleteSecurity = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    this.securityService
+      .deleteSecurity(id)
+      .then((data: any) => {
+        return res.status(204).json(data);
+      })
+      .catch((error: any) => this.handleError(error, res));
+  };
 }

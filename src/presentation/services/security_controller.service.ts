@@ -6,10 +6,26 @@ import { UserService } from "./user.service";
 export class SecurityService {
   constructor(public readonly userService: UserService) {}
 
-  async showSecurity() {
+  async showSecurity(
+    orderBy: "name" | "createdAt" | "credentialCount",
+    orderDirection: "ASC" | "DESC",
+    favorite: boolean | null,
+    page: number,
+    limit: number
+  ) {
     try {
-      return await SecurityBox.find({
-        relations: ["user"],
+      const conditions: any = { status: Status.ACTIVE };
+
+      const order: string = orderBy === "credentialCount" ? "name" : orderBy;
+
+      if (favorite !== null) conditions.favorite = favorite;
+
+      const securityBoxes = await SecurityBox.find({
+        where: conditions,
+        relations: ["user", "credentialsStorage"],
+        order: { [order]: orderDirection },
+        skip: (page - 1) * limit,
+        take: limit,
         select: {
           user: {
             id: true,
@@ -17,11 +33,31 @@ export class SecurityService {
             surname: true,
             email: true,
             cellphone: true,
-            status: true,
+          },
+          credentialsStorage: {
+            id: true,
+            account: true,
+            description: true,
           },
         },
       });
+
+      const securityBoxesWithCount = securityBoxes.map((box) => ({
+        ...box,
+        credentialCount: box.credentialsStorage.length,
+      }));
+
+      if (orderBy === "credentialCount") {
+        securityBoxesWithCount.sort((a, b) => {
+          return orderDirection === "ASC"
+            ? a.credentialCount - b.credentialCount
+            : b.credentialCount - a.credentialCount;
+        });
+      }
+
+      return securityBoxesWithCount;
     } catch (error) {
+      console.log(error);
       throw CustomError.internalServer("Error getting the security box");
     }
   }
